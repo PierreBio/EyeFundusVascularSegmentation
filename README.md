@@ -49,12 +49,12 @@ py -m src.main
 
 ## Method
 
-See here to access [our explanations](docs/METHOD.md) about Frangi algorithm.
+See [our explanations](docs/METHOD.md) about Frangi algorithm.
 
 ## Results
 
-See here to access [our results](docs/RESULTS.md).
+See [our results](docs/RESULTS.md).
 
 ## Ressources
 
-- [Frangi, 1998](https://d1wqtxts1xzle7.cloudfront.net/48947667/Muliscale_Vessel_Enhancement_Filtering20160918-18985-1pkzn9x-libre.pdf?1474259972=&response-content-disposition=inline%3B+filename%3DMuliscale_Vessel_Enhancement_Filtering.pdf&Expires=1707571192&Signature=Okg9BCjCipv9OxwQDCGuGKUJZt82qMVwROACadxa9fO0FvYchBxiPnXoXgmWerBwalYxut9hBc7pQ7gs93-PYfHBCjv3D-LGcdSTDSr0OjfK9E7yY2Im53wbuI6uc-kPkNxacXenQqeBKDDTEyb9WtlYrA1C2kPQoduNEL7VDg-smCTvoecvdiuz6V5g8Z8YCH8TBkQhU1zwwq-ntD~SRECvJ6nnOt6BhVvFvaP6Q7F7tb5fAwOhBh-DQqPwBcIyUi1sLpuAoBlTvagydDthv5AfDv~n8nzhqucy31IMZxMYAdH2rdBPCs7AjJfk7j2SDAU-WaEeu6v8khRjZum4zw__&Key-Pair-Id=APKAJLOHF5GGSLRBV4ZA)
+1. [Frangi, 1998](https://d1wqtxts1xzle7.cloudfront.net/48947667/Muliscale_Vessel_Enhancement_Filtering20160918-18985-1pkzn9x-libre.pdf?1474259972=&response-content-disposition=inline%3B+filename%3DMuliscale_Vessel_Enhancement_Filtering.pdf&Expires=1707571192&Signature=Okg9BCjCipv9OxwQDCGuGKUJZt82qMVwROACadxa9fO0FvYchBxiPnXoXgmWerBwalYxut9hBc7pQ7gs93-PYfHBCjv3D-LGcdSTDSr0OjfK9E7yY2Im53wbuI6uc-kPkNxacXenQqeBKDDTEyb9WtlYrA1C2kPQoduNEL7VDg-smCTvoecvdiuz6V5g8Z8YCH8TBkQhU1zwwq-ntD~SRECvJ6nnOt6BhVvFvaP6Q7F7tb5fAwOhBh-DQqPwBcIyUi1sLpuAoBlTvagydDthv5AfDv~n8nzhqucy31IMZxMYAdH2rdBPCs7AjJfk7j2SDAU-WaEeu6v8khRjZum4zw__&Key-Pair-Id=APKAJLOHF5GGSLRBV4ZA)
