@@ -1,3 +1,6 @@
-numpy==1.22.0
-scipy==1.7.3
-matplotlib==3.5.1
+matplotlib
+numpy
+scipy
+scikit-image
+scikit-learn
+imageio
