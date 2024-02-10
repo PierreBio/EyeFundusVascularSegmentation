@@ -7,7 +7,50 @@ The diagnosis generally relies on a quantitative analysis of the entire vascular
 
 **Figure 1 – Two examples of SLO fundus images and expert annotations for segmentation of the vascular network.**
 
+## How to setup?
 
-## Our Method
+- First, clone the repository:
+
+```
+git clone https://github.com/PierreBio/EyeFundusVascularSegmentation.git
+```
+
+- Then go to the root of the project:
+
+```
+cd EyeFundusVascularSegmentation
+```
+
+- Create a virtual environment:
+
+```
+py -m venv venv
+```
+
+- Activate your environment:
+
+```
+.\venv\Scripts\activate
+```
+
+- Install requirements:
+
+```
+pip install -r requirements.txt
+```
+
+## How to launch?
+
+- Once the project is setup, you can launch it:
+
+```
+py -m src.main
+```
+
+## Explained Method
+
+
+## Results
+
 
 ## Ressources
