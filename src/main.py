@@ -8,6 +8,7 @@ from src.segmentation.frangi_filter import frangi_vesselness_filter
 from src.segmentation.convolution_filter import circular_averaging_filter
 from src.segmentation.genetic import genetic
 from src.morphology.operations import bridge_unconnected_pixels, closing_operation, diagonal_fill
+from src.performance.analysis import calculate_performance, compare_images
 
 
 def apply_otsu_threshold(image):
@@ -25,7 +26,7 @@ def apply_otsu_threshold(image):
     plt.show()
 
     # Use the threshold to create a binary image
-    thresholded_image = np.where(image < best_threshold, 0, 255).astype(np.uint8)
+    thresholded_image = np.where(image < 150, 0, 255).astype(np.uint8)
 
     # Check the unique values in the thresholded image
     print(f"Unique values in the thresholded image: {np.unique(thresholded_image)}")
@@ -70,7 +71,7 @@ if __name__ == "__main__":
 
     # 3. Appliquer le filtre de Frangi
     custom_options = {
-        'FrangiScaleRange': (0.5, 2),  # Plus petites échelles
+        'FrangiScaleRange': (0.25, 2),  # Plus petites échelles
         'FrangiScaleRatio': 0.25,      # Pas plus fin
         'FrangiBetaOne': 0.25,         # Sensibilité accrue
         'FrangiBetaTwo': 10,           # Diminution de la correction pour le fond
@@ -110,8 +111,10 @@ if __name__ == "__main__":
 
     # Visualiser le résultat final
     plt.imshow(binary_bridged, cmap='gray')
-    plt.title('Résultat après traitement')
     plt.axis('off')
     plt.show()
 
     # 7. Analyse de performance
+    ground_truth = cv2.imread('data/images_IOSTAR/GT_01.png', cv2.IMREAD_GRAYSCALE)
+    TP, FP, TN, FN = compare_images(ground_truth, binary_bridged)
+    calculate_performance(TP, FP, TN, FN)
