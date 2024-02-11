@@ -1,4 +1,8 @@
 # Automatic Vascular Segmentation of the eye
+This project is carried out in the context of the Artificial Intelligence Masters of **TelecomParis**.
+
+## Project
+
 Scanning Laser Ophthalmoscopy (SLO) is a retinal imaging modality that allows for the creation of a high-resolution, wide-field fundus image, enabling the observation of the majority of the retinal surface in a single image at a resolution between 10 and 100 μm. Besides diseases of the retina itself, observation of the fundus can diagnose several general pathologies by examining the arterial and venous circulation in the retina. This is particularly the case for arterial hypertension and renal insufficiency.
 
 The diagnosis generally relies on a quantitative analysis of the entire vascular network of the retinal image, and thus requires precise segmentation of this network. The goal of this project is to propose an automatic method for segmenting the vascular network in SLO retinal images. Figure 1 shows two examples of SLO images, as well as the Ground Truth images, corresponding to the manual annotations of an expert.
@@ -6,6 +10,13 @@ The diagnosis generally relies on a quantitative analysis of the entire vascular
 ![image](https://github.com/PierreBio/EyeFundusVascularSegmentation/assets/45881846/7ec2de94-321e-45c0-aea6-1454cf9ed9fc)
 
 **Figure 1 – Two examples of SLO fundus images and expert annotations for segmentation of the vascular network.**
+
+## Questions
+
+1. Can you realize an optimized algorithm to segment the vascular network without using machine learning, nor deep learning?
+2. Can you explain the evaluation function provided in the "main" Python script?
+3. Why do we use two metrics (Precision and Recall)?
+4. What role does skeletonization play in this evaluation function?
 
 ## How to setup?
 
@@ -49,7 +60,7 @@ py -m src.main
 
 ## Method
 
-See [our explanations](docs/METHOD.md) about Frangi algorithm.
+See [our explanations](docs/METHOD.md) about our whole method inspired from [Wiharto, 2019](https://thesai.org/Downloads/Volume10No6/Paper_54-Blood_Vessels_Segmentation.pdf).
 
 ## Results
 
