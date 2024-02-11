@@ -13,10 +13,6 @@ def compute_hessian_2d(image, sigma):
     Returns:
     - (Dxx, Dxy, Dyy) (tuple): Second-order derivatives of the image.
     """
-    if sigma < 1:
-        print("Error: sigma must be >= 1.")
-        return -1
-
     image = np.array(image, dtype=float)
     sigma = np.array(sigma, dtype=float)
     kernel_radius = np.round(3 * sigma)

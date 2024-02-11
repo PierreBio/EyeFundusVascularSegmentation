@@ -70,11 +70,10 @@ if __name__ == "__main__":
 
     # 3. Appliquer le filtre de Frangi
     custom_options = {
-        'FrangiScaleRange': (1, 3.5),  # The range of sigmas starting from a value greater than 0
-        'FrangiScaleRatio': 0.5,       # The step size between consecutive sigmas
-        # Other parameters can remain unchanged or be customized further
-        'FrangiBetaOne': 0.5,
-        'FrangiBetaTwo': 15,
+        'FrangiScaleRange': (0.5, 2),  # Plus petites échelles
+        'FrangiScaleRatio': 0.25,      # Pas plus fin
+        'FrangiBetaOne': 0.25,         # Sensibilité accrue
+        'FrangiBetaTwo': 10,           # Diminution de la correction pour le fond
         'verbose': True,
         'BlackWhite': True
     }
@@ -87,15 +86,15 @@ if __name__ == "__main__":
     plt.show()
 
     # 4. Filtre de convolution
-    radius = 5
-    filtered_image = circular_averaging_filter(image_frangi, radius)
-    plt.imshow(filtered_image, cmap='gray')
-    plt.title('Résultat après traitement')
-    plt.axis('off')
-    plt.show()
+    #radius = 5
+    #filtered_image = circular_averaging_filter(image_frangi, radius)
+    #plt.imshow(filtered_image, cmap='gray')
+    #plt.title('Résultat après traitement')
+    #plt.axis('off')
+    #plt.show()
 
     # 5. Seuillage d'Otsu
-    image_otsu_thresholded = apply_otsu_threshold(filtered_image)
+    image_otsu_thresholded = apply_otsu_threshold(image_frangi)
     plt.imshow(image_otsu_thresholded, cmap='gray')
     plt.title('Résultat après traitement')
     plt.axis('off')
