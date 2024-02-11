@@ -1,110 +1,193 @@
-def compute_vesselness(Hxx, Hxy, Hyy, beta=0.5, c=15):
+import numpy as np
+from scipy import signal
+from scipy.ndimage import gaussian_filter
+import matplotlib.pyplot as plt
+from scipy.ndimage import binary_dilation, binary_erosion
+import cv2
+from PIL import Image
+
+from src.preprocessing.contrast import ImageContraster
+from src.segmentation.frangi_filter import frangi_vesselness_filter
+from src.segmentation.genetic import genetic
+from src.segmentation.otsu import fast_otsu
+
+def bridge_unconnected_pixels(binary_image):
     """
-    Calcule la "vesselness" pour chaque point de l'image en utilisant les valeurs propres de la matrice Hessienne.
-
-    :param Hxx: Dérivée seconde de l'image par rapport à x.
-    :param Hxy: Dérivée seconde mixte de l'image.
-    :param Hyy: Dérivée seconde de l'image par rapport à y.
-    :param beta: Paramètre de sensibilité pour la luminosité des vaisseaux.
-    :param c: Paramètre de seuillage pour filtrer les zones de faible contraste.
-    :return: Image de la "vesselness".
+    Connects nearby unconnected pixels (diagonal connection) in a binary image.
     """
-    # Calcul des valeurs propres
-    D = np.sqrt((Hxx - Hyy)**2 + 4*Hxy**2)
-    lambda1 = 0.5*(Hxx + Hyy + D)
-    lambda2 = 0.5*(Hxx + Hyy - D)
+    bridged_image = binary_image.copy()
+    rows, cols = binary_image.shape
 
-    # Assurer que |lambda1| <= |lambda2|
-    lambda1, lambda2 = np.where(np.abs(lambda1) > np.abs(lambda2), lambda2, lambda1), np.where(np.abs(lambda1) > np.abs(lambda2), lambda1, lambda2)
+    for i in range(1, rows-1):
+        for j in range(1, cols-1):
+            # Define the neighborhood
+            neighborhood = binary_image[i-1:i+2, j-1:j+2]
 
-    # Calcul de la "vesselness"
-    Rb = (lambda1 / lambda2)**2
-    S2 = lambda1**2 + lambda2**2
-    V = np.exp(-Rb / (2*beta**2)) * (1 - np.exp(-S2 / (2*c**2)))
+            # Check the connectivity conditions
+            # For example, if the upper left and lower right pixels are foreground, but the center is not
+            if neighborhood[0, 0] and neighborhood[2, 2] and not neighborhood[1, 1]:
+                bridged_image[i, j] = 1
+            # Similar check for the other diagonal
+            elif neighborhood[2, 0] and neighborhood[0, 2] and not neighborhood[1, 1]:
+                bridged_image[i, j] = 1
+            # Additional conditions can be added to bridge in other scenarios
 
-    # Eliminer les valeurs propres négatives (qui correspondent à des structures en forme de plaque)
-    V[lambda2 > 0] = 0
+    return bridged_image
 
-    return V
 
-def compute_hessian_matrix(image, sigma=1):
+def convolution_filter(image, kernel):
     """
-    Calcule la matrice Hessienne d'une image à une échelle donnée sigma.
-
-    :param image: Image d'entrée en niveaux de gris.
-    :param sigma: Échelle à laquelle calculer la matrice Hessienne.
-    :return: Les composantes de la matrice Hessienne (Hxx, Hxy, Hyy).
+    Apply a convolution filter to an image.
+    This function uses 'reflect' as the boundary condition and 'valid' as the convolution mode,
+    meaning the output image will be smaller than the input image if the kernel size is larger than 1x1.
     """
-    # Filtrage gaussien pour lisser l'image
-    image_smoothed = gaussian_filter(image, sigma=sigma)
+    return signal.convolve2d(image, kernel, boundary='symm', mode='same')
 
-    # Calcul des dérivées secondes
-    Hxx = gaussian_filter(image_smoothed, sigma=sigma, order=(2, 0))
-    Hyy = gaussian_filter(image_smoothed, sigma=sigma, order=(0, 2))
-    Hxy = gaussian_filter(image_smoothed, sigma=sigma, order=(1, 1))
-
-    return Hxx, Hxy, Hyy
-
-def frangi_filter_response(image, sigmas, beta=0.5, c=15):
+def closing_operation(binary_image, structure=np.ones((3,3))):
     """
-    Calcule la réponse du filtre de Frangi pour chaque point de l'image à différentes échelles.
+    Perform a closing operation on a binary image.
 
-    :param image: Image d'entrée en niveaux de gris.
-    :param sigmas: Liste des échelles (sigma) à utiliser pour le calcul.
-    :param beta: Paramètre de la formule de Frangi.
-    :param c: Paramètre de la formule de Frangi.
-    :return: Image de la réponse du filtre de Frangi.
+    :param binary_image: A binary (black and white) image.
+    :param structure: The structuring element used for closing.
+    :return: The image after applying the closing operation.
     """
-    vesselness_images = []
-    for sigma in sigmas:
-        Hxx, Hxy, Hyy = compute_hessian_matrix(image, sigma)
-        V = compute_vesselness(Hxx, Hxy, Hyy, beta, c)
-        vesselness_images.append(V)
+    # Dilate then erode the image.
+    dilated_image = binary_dilation(binary_image, structure=structure)
+    closed_image = binary_erosion(dilated_image, structure=structure)
+    return closed_image
 
-    # Sélectionner la valeur maximale de vesselness pour chaque point à travers les échelles
-    frangi_response = np.max(vesselness_images, axis=0)
-
-    return frangi_response
-
-def test_frangi_parameters(image, sigmas_list, beta_list, c_list):
+def diagonal_fill(binary_image):
     """
-    Teste différentes combinaisons de paramètres pour l'algorithme de Frangi et affiche les résultats.
-
-    :param image: Image d'entrée en niveaux de gris.
-    :param sigmas_list: Liste des ensembles de sigmas à tester.
-    :param beta_list: Liste des valeurs de beta à tester.
-    :param c_list: Liste des valeurs de c à tester.
+    Fill diagonal gaps in a binary image.
     """
-    fig, axs = plt.subplots(len(sigmas_list), len(beta_list) * len(c_list), figsize=(20, 10))
+    filled_image = binary_image.copy()
+    rows, cols = binary_image.shape
 
-    for i, sigmas in enumerate(sigmas_list):
-        for j, beta in enumerate(beta_list):
-            for k, c in enumerate(c_list):
-                frangi_response = frangi_filter_response(image, sigmas, beta, c)
-                ax = axs[i, j * len(c_list) + k]
-                ax.imshow(frangi_response, cmap='gray')
-                ax.set_title(f'Sigmas: {sigmas}\nBeta: {beta}, C: {c}')
-                ax.axis('off')
+    for i in range(1, rows-1):
+        for j in range(1, cols-1):
+            # Check for diagonal connectivity:
+            # If there's a diagonal gap, fill it
+            if binary_image[i-1, j-1] and binary_image[i+1, j+1] and not binary_image[i, j]:
+                filled_image[i, j] = 1
+            elif binary_image[i+1, j-1] and binary_image[i-1, j+1] and not binary_image[i, j]:
+                filled_image[i, j] = 1
 
-    plt.tight_layout()
+    return filled_image
+
+def median_filter(input_image, filter_size):
+    # Convert PIL Image to numpy array if it is not already an array
+    if isinstance(input_image, Image.Image):
+        input_image = np.array(input_image)
+
+    temp_image = np.pad(input_image, ((filter_size//2, filter_size//2), (filter_size//2, filter_size//2)), 'reflect')
+    output_image = np.zeros_like(input_image)
+
+    for i in range(input_image.shape[0]):
+        for j in range(input_image.shape[1]):
+            window = temp_image[i:i+filter_size, j:j+filter_size]
+            median = np.median(window)
+            output_image[i, j] = median
+
+    return output_image
+
+
+def apply_otsu_threshold(image):
+    if image.max() <= 1.0:
+        image = image * 255
+
+    genrtic = genetic(image)
+    best_threshold = genrtic.get_threshold()
+
+    print(f"Best threshold: {best_threshold}")
+
+    # Plot the histogram of the image
+    plt.hist(image.ravel(), bins=256, range=(0, 256))
+    plt.title("Histogram")
     plt.show()
 
+    # Use the threshold to create a binary image
+    thresholded_image = np.where(image < best_threshold, 0, 255).astype(np.uint8)
+
+    # Check the unique values in the thresholded image
+    print(f"Unique values in the thresholded image: {np.unique(thresholded_image)}")
+
+    # Show the thresholded image
+    plt.imshow(thresholded_image, cmap='gray')
+    plt.title("Thresholded Image")
+    plt.axis('off')
+    plt.show()
+
+
+    return thresholded_image
+
 if __name__ == "__main__":
-    import numpy as np
-    from scipy.ndimage import gaussian_filter
-    import matplotlib.pyplot as plt
-    import imageio
-    from skimage.color import rgb2gray
+    # Charger l'image et la convertir en niveaux de gris si nécessaire
+    image_path = 'data/images_IOSTAR/star01_OSC.jpg'
+    gray_image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
 
-    # Charger l'image téléchargée
-    image = imageio.imread('data/images_IOSTAR/star01_OSC.jpg')
-    if image.ndim == 3:
-        image = rgb2gray(image)
+    # 1. Appliquer la CLAHE
+    # CLAHE
+    # contraster
+    icter = ImageContraster()
+    image_clahe = icter.enhance_contrast(gray_image, method = "CLAHE", blocks = 8, threshold = 10.0)
 
-    # Définir les ensembles de paramètres à tester
-    sigmas_list = [[0.5, 1, 1.5, 2], [0.6, 0.8, 1, 1.2]]
-    beta_list = [0.5, 0.75]
-    c_list = [15, 10]
+    # 2. Filtrage médian
+    image_median_filtered = median_filter(image_clahe, filter_size=3)
 
-    # Tester les paramètres
-    test_frangi_parameters(image, sigmas_list, beta_list, c_list)
+    fig, axs = plt.subplots(1, 2, figsize=(10, 5))  # Create a figure with two subplots
+
+    # Display the CLAHE result
+    axs[0].imshow(image_clahe, cmap='gray')
+    axs[0].set_title('After CLAHE')
+    axs[0].axis('off')  # Hide axes for better visualization
+
+    # Display the result after median filtering
+    axs[1].imshow(image_median_filtered, cmap='gray')
+    axs[1].set_title('After Median Filtering')
+    axs[1].axis('off')  # Hide axes for better visualization
+
+    plt.tight_layout()  # Adjust the layout to make sure there's no overlap
+    plt.show()
+
+    # 3. Appliquer le filtre de Frangi
+    custom_options = {
+        'FrangiScaleRange': (1, 3.5),  # The range of sigmas starting from a value greater than 0
+        'FrangiScaleRatio': 0.5,       # The step size between consecutive sigmas
+        # Other parameters can remain unchanged or be customized further
+        'FrangiBetaOne': 0.5,
+        'FrangiBetaTwo': 15,
+        'verbose': True,
+        'BlackWhite': True
+    }
+
+    # Pass the custom options when you call FrangiFilter2D
+    image_frangi = frangi_vesselness_filter(image_median_filtered, custom_options)
+    plt.imshow(image_frangi, cmap='gray')
+    plt.title('Résultat après traitement')
+    plt.axis('off')
+    plt.show()
+
+    # 4. Filtre de convolution
+
+    # 5. Seuillage d'Otsu
+    image_otsu_thresholded = apply_otsu_threshold(image_frangi)
+    plt.imshow(image_otsu_thresholded, cmap='gray')
+    plt.title('Résultat après traitement')
+    plt.axis('off')
+    plt.show()
+
+    # 6. Opérations morphologiques
+    # Fermeture
+    binary_closed = closing_operation(image_otsu_thresholded, structure=np.ones((3,3)))
+    # Remplissage diagonal
+    binary_diagonal_filled = diagonal_fill(binary_closed)
+    # Pontage des pixels non connectés
+    binary_bridged = bridge_unconnected_pixels(binary_diagonal_filled)
+
+    # Visualiser le résultat final
+    plt.imshow(binary_bridged, cmap='gray')
+    plt.title('Résultat après traitement')
+    plt.axis('off')
+    plt.show()
+
+    # 7. Analyse de performance
