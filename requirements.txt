@@ -5,3 +5,4 @@ scikit-image
 scikit-learn
 imageio
 opencv-python
+pandas

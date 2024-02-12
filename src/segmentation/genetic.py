@@ -1,5 +1,6 @@
 import numpy as np
 from src.segmentation.otsu import otsu, fast_ostu, fast_otsu
+from src.performance.analysis import SHOW_NUMBERS
 
 np.random.seed(8)
 
@@ -21,12 +22,16 @@ class genetic:
     def get_fitness(self):
         # fitness = [otsu(self.image, i) for i in self.population]
         fitness = [fast_ostu(self.image, i) for i in self.population]
+        fitness = np.nan_to_num(fitness, nan=0.0)
         return fitness
 
     def select(self):
         fitness = self.get_fitness()
         sum_fitness = np.sum(fitness)
         probability = fitness / sum_fitness
+        probability = np.nan_to_num(probability, nan=0.0)
+        if np.all(probability == 0.0):
+            probability = np.putmask(probability, probability == 0.0, 1/(len(probability)))
         new_population = np.random.choice(self.population, self.N, True, probability)
         return new_population
 
@@ -71,8 +76,10 @@ class genetic:
 
             if flag > self.max_iteration:
                 break
-            print("best threshold is: ")
-            print(best_threshold)
-            print("best fitness is: ")
-            print(best_fitness)
+
+            if SHOW_NUMBERS:
+                print("best threshold is: ")
+                print(best_threshold)
+                print("best fitness is: ")
+                print(best_fitness)
         return best_threshold

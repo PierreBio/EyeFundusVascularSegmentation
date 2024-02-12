@@ -100,7 +100,6 @@ def frangi_vesselness_filter(image, options=None):
         'verbose': True,              # Show progress
         'BlackWhite': True,           # Detect black ridges
     }
-
     if options:
         for key, value in options.items():
             default_options[key] = value
@@ -113,8 +112,8 @@ def frangi_vesselness_filter(image, options=None):
 
     vesselness_image = np.zeros_like(image, dtype=float)
     vesselness_scale = np.zeros(image.shape + (len(sigmas),))
-
     for i, sigma in enumerate(sigmas):
+        
         if default_options['verbose']:
             print(f'Processing scale: {sigma}')
 
