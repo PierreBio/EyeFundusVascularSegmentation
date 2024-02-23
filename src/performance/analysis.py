@@ -2,10 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from skimage.morphology import thin
 
-# turn flags on for debugging, off when running with all images
-# flag to display images
 SHOW_IMAGES = False
-# flag to display numbers in console
 SHOW_NUMBERS = False
 
 def compare_images(ground_truth, predicted):
@@ -73,7 +70,7 @@ def evaluate(img_out, img_GT):
     Pulled from tp2_script.py, written by Gianni Franchi.
     Computes the accuracy and recall for an image, given the ground truth
     """
-    GT_skel = thin(img_GT, max_num_iter = 15) # On suppose que la demie epaisseur maximum 
+    GT_skel = thin(img_GT, max_num_iter = 15) # On suppose que la demie epaisseur maximum
     img_out_skel = thin(img_out, max_num_iter = 15) # d'un vaisseau est de 15 pixels...
     TP = np.sum(img_out_skel & img_GT) # Vrais positifs
     FP = np.sum(img_out_skel & ~img_GT) # Faux positifs
@@ -115,5 +112,5 @@ def total_evaluation(image_src, processed_image, ground_truth, method_name):
     show_last_img(image_src, processed_image, img_out_skel, ground_truth, GT_skel)
     if SHOW_NUMBERS:
         print(f'{method_name}\'s version = Accuracy = {ACCU*100:.3f} % - Recall = {RECALL*100:.3f} %')
-    
+
     return ACCU, RECALL, TP, FP, TN, FN

@@ -52,10 +52,16 @@ pip install -r requirements.txt
 
 ## How to launch?
 
-- Once the project is setup, you can launch it:
+- Once the project is setup, you can launch it using our initial main script:
 
 ```
 py -m src.main
+```
+
+- For our teacher, and to fill scholarship requirements, you can use this main_scholar script:
+
+```
+py -m src.main_scholar
 ```
 
 ## Method

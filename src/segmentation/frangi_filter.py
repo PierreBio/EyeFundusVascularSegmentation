@@ -110,10 +110,9 @@ def frangi_vesselness_filter(image, options=None):
     beta = 2 * default_options['FrangiBetaOne']**2
     c = 2 * default_options['FrangiBetaTwo']**2
 
-    vesselness_image = np.zeros_like(image, dtype=float)
     vesselness_scale = np.zeros(image.shape + (len(sigmas),))
     for i, sigma in enumerate(sigmas):
-        
+
         if default_options['verbose']:
             print(f'Processing scale: {sigma}')
 

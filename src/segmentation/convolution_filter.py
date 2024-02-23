@@ -1,24 +1,33 @@
 import numpy as np
 from scipy.ndimage import convolve
-
-def create_circular_mask(h, w, center=None, radius=None):
-    if center is None:  # use the middle of the image
-        center = (int(w/2), int(h/2))
-    if radius is None:  # use the smallest distance between the center and image walls
-        radius = min(center[0], center[1], w-center[0], h-center[1])
-
-    Y, X = np.ogrid[:h, :w]
-    dist_from_center = np.sqrt((X - center[0])**2 + (Y-center[1])**2)
-
-    mask = dist_from_center <= radius
-    return mask
+from scipy.signal import convolve2d
 
 def circular_averaging_filter(image, radius):
-    h, w = image.shape
-    mask = create_circular_mask(h, w, radius=radius)
-    mask = mask.astype(float) / mask.sum()  # Normalize the mask
+    """
+    Applies a circular averaging filter to an image.
 
-    # Apply the filter using 2D convolution
-    filtered_image = convolve(image, mask, mode='constant', cval=0.0)
+    Parameters:
+        image (numpy.ndarray): The input image to be filtered.
+        radius (int): The radius of the circular averaging kernel.
 
-    return filtered_image
+    Returns:
+        numpy.ndarray: The image after applying the circular averaging filter.
+    """
+    y, x = np.ogrid[-radius:radius+1, -radius:radius+1]
+    kernel = x**2 + y**2 <= radius**2
+    kernel = kernel.astype(float) / kernel.sum()
+    return convolve(image, kernel, mode='reflect')
+
+def fir_filter_image(image, fir_coeff):
+    """
+    Applies a Finite Impulse Response (FIR) filter to an image.
+
+    Parameters:
+        image (numpy.ndarray): The input image to be filtered.
+        fir_coeff (numpy.ndarray): The coefficients of the FIR filter.
+
+    Returns:
+        numpy.ndarray: The image after applying the FIR filter.
+    """
+    fir_filtered_rows = convolve2d(image, fir_coeff.reshape(1, -1), mode='same')
+    return convolve2d(fir_filtered_rows, fir_coeff.reshape(-1, 1), mode='same')

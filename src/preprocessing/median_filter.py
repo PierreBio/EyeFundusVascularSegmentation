@@ -3,7 +3,18 @@ from PIL import Image
 
 
 def median_filter(input_image, filter_size):
-    # Convert PIL Image to numpy array if it is not already an array
+    """
+    Apply a median filter to an image to reduce noise.
+
+    Parameters:
+    - input_image (numpy.ndarray or PIL.Image.Image): The image to be filtered.
+    - filter_size (int): The size of the median filter window, must be an odd integer.
+
+    Returns:
+    - numpy.ndarray: The median-filtered image.
+
+    The function supports both numpy arrays and PIL image inputs, converting the latter to numpy arrays. It pads the image using reflection to handle borders.
+    """
     if isinstance(input_image, Image.Image):
         input_image = np.array(input_image)
 
