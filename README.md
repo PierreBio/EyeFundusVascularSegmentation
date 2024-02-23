@@ -13,10 +13,10 @@ The diagnosis generally relies on a quantitative analysis of the entire vascular
 
 ## Questions
 
-1. Can you realize an optimized algorithm to segment the vascular network without using machine learning, nor deep learning?
-2. Can you explain the evaluation function provided in the "main" Python script?
-3. Why do we use two metrics (Precision and Recall)?
-4. What role does skeletonization play in this evaluation function?
+1. Can you realize an optimized algorithm to segment the vascular network without using machine learning, nor deep learning? [answer](docs/ANSWERS.md#answer-1)
+2. Can you explain the evaluation function provided in the "main" Python script? [answer](docs/ANSWERS.md#answer-2)
+3. Why do we use two metrics (Precision and Recall)? [answer](docs/ANSWERS.md#answer-3)
+4. What role does skeletonization play in this evaluation function? [answer](docs/ANSWERS.md#answer-4)
 
 ## How to setup?
 
@@ -66,7 +66,7 @@ py -m src.main_scholar
 
 ## Method
 
-See [our explanations](docs/METHOD.md) about our whole method inspired from [Wiharto, 2019](https://thesai.org/Downloads/Volume10No6/Paper_54-Blood_Vessels_Segmentation.pdf).
+See [our explanations](docs/METHOD.md) about the whole method inspired from [Wiharto, 2019](https://thesai.org/Downloads/Volume10No6/Paper_54-Blood_Vessels_Segmentation.pdf).
 
 ## Results
 
