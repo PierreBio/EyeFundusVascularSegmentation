@@ -4,6 +4,8 @@
 
 We used mainly this [article from Wiharto (2019)](https://thesai.org/Downloads/Volume10No6/Paper_54-Blood_Vessels_Segmentation.pdf) to realize our algorithm and understand the whole process to make an acceptable eye segmentation.
 
+![image](https://github.com/PierreBio/EyeFundusVascularSegmentation/assets/45881846/261c310a-3eee-439f-b188-218c3ecffd81)
+
 A. Preprocessing
 
 The preprocessing stage aims to enhance the quality of retinal images for better segmentation results. It includes:
