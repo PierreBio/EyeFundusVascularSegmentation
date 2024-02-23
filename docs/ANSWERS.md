@@ -5,7 +5,7 @@
 ### Answer 1
 **Can you realize an optimized algorithm to segment the vascular network without using machine learning, nor deep learning?**
 
-We are inspired from [Wiharto, 2019](https://thesai.org/Downloads/Volume10No6/Paper_54-Blood_Vessels_Segmentation.pdf). This article proposes a [method](docs/METHOD.md) to segment an image of retina. We used it in order to get similar results but it appears that **we didn't achieve to get the same performances** especially because we don't use exactly the same functions (we use custom CLAHE, Frangi, Convolution, etc.) and parameters foreach step of the method.
+We are inspired from [Wiharto, 2019](https://thesai.org/Downloads/Volume10No6/Paper_54-Blood_Vessels_Segmentation.pdf). This article proposes a [method](docs/METHOD.md) to segment an image of retina. We used it in order to get similar results but it appears that **we didn't achieve to get the same performances** especially because we don't use exactly the same functions (we use custom CLAHE, Frangi, Convolution, etc.) neither the same parameters for each function and step of the method.
 
 For **images_IOSTAR/star01_OSC.jpg** we get the next results:
 Accuracy = 0.734845443596949 , Recall = 0.7239470041526597
