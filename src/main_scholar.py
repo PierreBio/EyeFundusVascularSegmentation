@@ -21,20 +21,20 @@ def my_segmentation(img, img_mask):
     image_median_filtered = median_filter(image_clahe, filter_size=3)
 
     custom_options = {
-        'FrangiScaleRange': (0.5, 5),
-        'FrangiScaleRatio': 1,
-        'FrangiBetaOne': 2,
-        'FrangiBetaTwo': 20,
+        'FrangiScaleRange': (0.1, 2),
+        'FrangiScaleRatio': 0.05,
+        'FrangiBetaOne': 0.3,
+        'FrangiBetaTwo': 15,
         'verbose': False,
         'BlackWhite': True
     }
 
     image_frangi = frangi_vesselness_filter(image_median_filtered, custom_options)
-    filtered_image_conv = circular_averaging_filter(image_frangi, 2)
-    filtered_image_fir = fir_filter_image(filtered_image_conv, np.array([0.1, 0.15, 0.5, 0.15, 0.1]))
+    filtered_image_conv = circular_averaging_filter(image_frangi, 3)
+    filtered_image_fir = fir_filter_image(filtered_image_conv, np.array([0.01, 0.1, 0.1, 0.05, 0.01]))
     image_otsu_thresholded = apply_otsu_threshold(filtered_image_fir)
 
-    binary_closed = closing_operation(image_otsu_thresholded, structure=np.ones((3,3)))
+    binary_closed = closing_operation(image_otsu_thresholded, structure=np.ones((2,2)))
     binary_diagonal_filled = diagonal_fill(binary_closed)
     binary_bridged = bridge_unconnected_pixels(binary_diagonal_filled)
 
