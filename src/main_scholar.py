@@ -17,21 +17,21 @@ from src.segmentation.otsu_thresholding import apply_otsu_threshold
 from src.morphology.operations import bridge_unconnected_pixels, closing_operation, diagonal_fill
 
 def my_segmentation(img, img_mask):
-    image_clahe = enhance_contrast(img, blocks = 16, threshold = 8.0)
+    image_clahe = enhance_contrast(img, blocks = 14, threshold = 8.0)
     image_median_filtered = median_filter(image_clahe, filter_size=3)
 
     custom_options = {
         'FrangiScaleRange': (0.1, 2),
         'FrangiScaleRatio': 0.05,
-        'FrangiBetaOne': 0.3,
-        'FrangiBetaTwo': 15,
+        'FrangiBetaOne': 0.4,
+        'FrangiBetaTwo': 16,
         'verbose': False,
         'BlackWhite': True
     }
 
     image_frangi = frangi_vesselness_filter(image_median_filtered, custom_options)
     filtered_image_conv = circular_averaging_filter(image_frangi, 3)
-    filtered_image_fir = fir_filter_image(filtered_image_conv, np.array([0.01, 0.1, 0.1, 0.05, 0.01]))
+    filtered_image_fir = fir_filter_image(filtered_image_conv, np.array([0.02, 0.08, 0.1, 0.08, 0.02]))
     image_otsu_thresholded = apply_otsu_threshold(filtered_image_fir)
 
     binary_closed = closing_operation(image_otsu_thresholded, structure=np.ones((2,2)))
