@@ -7,9 +7,18 @@ from scipy import ndimage as ndi
 from skimage.util import img_as_ubyte
 import math
 from skimage import data, filters
-from matplotlib import pyplot as plt
 from skimage.filters import frangi
+from skimage.morphology import closing, remove_small_objects, binary_dilation, disk, label
+from skimage.measure import label, regionprops
+from skimage.morphology import remove_small_objects
+from skimage.filters import threshold_local
+from matplotlib import pyplot as plt
 
+import numpy as np
+from skimage.filters import frangi, threshold_otsu
+from skimage.morphology import closing, remove_small_objects, binary_dilation, disk, label
+from skimage.measure import regionprops
+import matplotlib.pyplot as plt
 from src.preprocessing.contrast import enhance_contrast
 from src.preprocessing.median_filter import apply_clahe, apply_gaussian_filter, median_filter
 from src.segmentation.frangi_filter import frangi_vesselness_filter
@@ -18,45 +27,52 @@ from src.segmentation.otsu_thresholding import apply_otsu_threshold
 from src.morphology.operations import bridge_unconnected_pixels, closing_operation, diagonal_fill
 
 def my_segmentation(img, img_mask):
-    image_clahe = enhance_contrast(img, blocks = 14, threshold = 8.0)
+    image_clahe = enhance_contrast(img, blocks=14, threshold=8.0)
     image_median_filtered = median_filter(image_clahe, filter_size=3)
 
     frangi_params = {
-        'sigmas': range(2, 20, 2),  # La gamme des sigmas à utiliser
-        'alpha': 0.5,               # Contrôle la sensibilité aux structures tubulaires; plus c'est bas, plus la région à être considérée comme tubulaire est grande
-        'beta': 1,                # Contrôle la sensibilité aux déviations de l'image par rapport à une image de fond uniforme
-        'gamma': 5,                # Un paramètre de seuil qui est utilisé pour éliminer les valeurs faibles de la réponse du filtre
-        'black_ridges': True,       # True si les structures noires doivent être détectées (ex. vaisseaux sanguins), False pour les structures blanches
-        'mode' : 'reflect',  # Mode de traitement des bords
-        'cval' : 0  # Valeur utilisée pour les bords lors de l'utilisation de mode différent de 'wrap'
+        'scale_range': (2, 15),
+        'scale_step': 0.1,
+        'alpha': 1,
+        'beta': 1,
+        'gamma': 3.5,
+        'black_ridges': True,
+        'mode': 'wrap',
+        'cval': 5
     }
 
-    # Application du filtre de Frangi
     filtered_image = frangi(image_median_filtered, **frangi_params)
 
-    # Affichage de l'image originale et de l'image filtrée
-    plt.figure(figsize=(12, 6))
-
-    plt.subplot(1, 2, 1)
-    plt.imshow(img, cmap='gray')
-    plt.title('Image Originale')
-    plt.axis('off')
-
-    plt.subplot(1, 2, 2)
-    plt.imshow(filtered_image, cmap='gray')
-    plt.title('Après Filtre de Frangi')
-    plt.axis('off')
-
-    plt.show()
+    # Post-traitement pour améliorer la segmentation
     filtered_image_conv = circular_averaging_filter(filtered_image, 2)
     filtered_image_fir = fir_filter_image(filtered_image_conv, np.array([0.01, 0.2, 0.2, 0.2, 0.02]))
     image_otsu_thresholded = apply_otsu_threshold(filtered_image_fir)
 
-    binary_closed = closing_operation(image_otsu_thresholded, structure=np.ones((3,3)))
-    binary_diagonal_filled = diagonal_fill(binary_closed)
-    binary_bridged = bridge_unconnected_pixels(binary_diagonal_filled)
+    # Suppression des petits objets
+    binary_filtered = remove_small_objects(image_otsu_thresholded.astype(bool), min_size=200)
 
-    img_out = (img_mask & binary_bridged)
+    img_out = (img_mask & binary_filtered).astype(np.uint8)
+
+    # Affichage des résultats
+    plt.figure(figsize=(18, 6))
+
+    plt.subplot(1, 3, 1)
+    plt.imshow(img, cmap='gray')
+    plt.title('Image Originale')
+    plt.axis('off')
+
+    plt.subplot(1, 3, 2)
+    plt.imshow(filtered_image, cmap='gray')
+    plt.title('Après Filtrage de Frangi')
+    plt.axis('off')
+
+    plt.subplot(1, 3, 3)
+    plt.imshow(img_out, cmap='gray')
+    plt.title('Segmentation Finale')
+    plt.axis('off')
+
+    plt.show()
+
     return img_out
 
 def evaluate(img_out, img_GT):
