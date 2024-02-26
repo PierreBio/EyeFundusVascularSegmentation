@@ -32,10 +32,10 @@ def my_segmentation(img, img_mask):
 
     frangi_params = {
         'scale_range': (2, 15),
-        'scale_step': 0.1,
+        'scale_step': 1,
         'alpha': 1,
         'beta': 1,
-        'gamma': 3.5,
+        'gamma': 4,
         'black_ridges': True,
         'mode': 'wrap',
         'cval': 5
@@ -45,11 +45,11 @@ def my_segmentation(img, img_mask):
 
     # Post-traitement pour améliorer la segmentation
     filtered_image_conv = circular_averaging_filter(filtered_image, 2)
-    filtered_image_fir = fir_filter_image(filtered_image_conv, np.array([0.01, 0.2, 0.2, 0.2, 0.02]))
+    filtered_image_fir = fir_filter_image(filtered_image_conv, np.array([0.1, 1, 1, 1, 0.1]))
     image_otsu_thresholded = apply_otsu_threshold(filtered_image_fir)
 
     # Suppression des petits objets
-    binary_filtered = remove_small_objects(image_otsu_thresholded.astype(bool), min_size=200)
+    binary_filtered = remove_small_objects(image_otsu_thresholded.astype(bool), min_size=250)
 
     img_out = (img_mask & binary_filtered).astype(np.uint8)
 
