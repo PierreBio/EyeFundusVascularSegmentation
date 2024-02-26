@@ -8,9 +8,10 @@ from skimage.util import img_as_ubyte
 import math
 from skimage import data, filters
 from matplotlib import pyplot as plt
+from skimage.filters import frangi
 
 from src.preprocessing.contrast import enhance_contrast
-from src.preprocessing.median_filter import median_filter
+from src.preprocessing.median_filter import apply_clahe, apply_gaussian_filter, median_filter
 from src.segmentation.frangi_filter import frangi_vesselness_filter
 from src.segmentation.convolution_filter import circular_averaging_filter, fir_filter_image
 from src.segmentation.otsu_thresholding import apply_otsu_threshold
@@ -20,21 +21,38 @@ def my_segmentation(img, img_mask):
     image_clahe = enhance_contrast(img, blocks = 14, threshold = 8.0)
     image_median_filtered = median_filter(image_clahe, filter_size=3)
 
-    custom_options = {
-        'FrangiScaleRange': (0.1, 2),
-        'FrangiScaleRatio': 0.05,
-        'FrangiBetaOne': 0.4,
-        'FrangiBetaTwo': 16,
-        'verbose': False,
-        'BlackWhite': True
+    frangi_params = {
+        'sigmas': range(2, 20, 2),  # La gamme des sigmas à utiliser
+        'alpha': 0.5,               # Contrôle la sensibilité aux structures tubulaires; plus c'est bas, plus la région à être considérée comme tubulaire est grande
+        'beta': 1,                # Contrôle la sensibilité aux déviations de l'image par rapport à une image de fond uniforme
+        'gamma': 5,                # Un paramètre de seuil qui est utilisé pour éliminer les valeurs faibles de la réponse du filtre
+        'black_ridges': True,       # True si les structures noires doivent être détectées (ex. vaisseaux sanguins), False pour les structures blanches
+        'mode' : 'reflect',  # Mode de traitement des bords
+        'cval' : 0  # Valeur utilisée pour les bords lors de l'utilisation de mode différent de 'wrap'
     }
 
-    image_frangi = frangi_vesselness_filter(image_median_filtered, custom_options)
-    filtered_image_conv = circular_averaging_filter(image_frangi, 3)
-    filtered_image_fir = fir_filter_image(filtered_image_conv, np.array([0.02, 0.08, 0.1, 0.08, 0.02]))
+    # Application du filtre de Frangi
+    filtered_image = frangi(image_median_filtered, **frangi_params)
+
+    # Affichage de l'image originale et de l'image filtrée
+    plt.figure(figsize=(12, 6))
+
+    plt.subplot(1, 2, 1)
+    plt.imshow(img, cmap='gray')
+    plt.title('Image Originale')
+    plt.axis('off')
+
+    plt.subplot(1, 2, 2)
+    plt.imshow(filtered_image, cmap='gray')
+    plt.title('Après Filtre de Frangi')
+    plt.axis('off')
+
+    plt.show()
+    filtered_image_conv = circular_averaging_filter(filtered_image, 2)
+    filtered_image_fir = fir_filter_image(filtered_image_conv, np.array([0.01, 0.2, 0.2, 0.2, 0.02]))
     image_otsu_thresholded = apply_otsu_threshold(filtered_image_fir)
 
-    binary_closed = closing_operation(image_otsu_thresholded, structure=np.ones((2,2)))
+    binary_closed = closing_operation(image_otsu_thresholded, structure=np.ones((3,3)))
     binary_diagonal_filled = diagonal_fill(binary_closed)
     binary_bridged = bridge_unconnected_pixels(binary_diagonal_filled)
 
