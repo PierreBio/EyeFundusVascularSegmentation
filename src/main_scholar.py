@@ -26,6 +26,23 @@ from src.segmentation.convolution_filter import circular_averaging_filter, fir_f
 from src.segmentation.otsu_thresholding import apply_otsu_threshold
 from src.morphology.operations import bridge_unconnected_pixels, closing_operation, diagonal_fill
 
+import numpy as np
+from skimage.morphology import skeletonize, medial_axis
+from skimage.util import invert
+from scipy.ndimage import label, find_objects
+from skimage.measure import regionprops
+
+import numpy as np
+from skimage.morphology import skeletonize, binary_dilation, binary_erosion, disk, binary_closing
+from scipy.ndimage import label, generate_binary_structure
+from skimage.measure import regionprops
+
+def prune_small_branches(binary_image):
+    image_erodée = binary_erosion(binary_image, disk(1))
+    image_dilatée = binary_dilation(image_erodée, disk(3))
+    return image_dilatée
+
+
 def my_segmentation(img, img_mask):
     image_clahe = enhance_contrast(img, blocks=14, threshold=8.0)
     image_median_filtered = median_filter(image_clahe, filter_size=3)
@@ -45,13 +62,13 @@ def my_segmentation(img, img_mask):
 
     # Post-traitement pour améliorer la segmentation
     filtered_image_conv = circular_averaging_filter(filtered_image, 2)
-    filtered_image_fir = fir_filter_image(filtered_image_conv, np.array([0.1, 1, 1, 1, 0.1]))
+    filtered_image_fir = fir_filter_image(filtered_image_conv, np.array([0.01, 3, 3, 3, 0.01]))
     image_otsu_thresholded = apply_otsu_threshold(filtered_image_fir)
 
     # Suppression des petits objets
     binary_filtered = remove_small_objects(image_otsu_thresholded.astype(bool), min_size=250)
-
-    img_out = (img_mask & binary_filtered).astype(np.uint8)
+    binary_pruned_image = prune_small_branches(binary_filtered)
+    img_out = (img_mask & binary_pruned_image).astype(np.uint8)
 
     # Affichage des résultats
     plt.figure(figsize=(18, 6))
