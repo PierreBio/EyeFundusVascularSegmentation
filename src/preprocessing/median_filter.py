@@ -1,6 +1,32 @@
 import numpy as np
+from skimage import filters, exposure
+from skimage.util import img_as_ubyte
+import numpy as np
+
 from PIL import Image
 
+def apply_gaussian_filter(image, sigma=1):
+    """
+    Applique un filtre gaussien à l'image.
+
+    :param image: Image d'entrée, numpy array 2D.
+    :param sigma: Écart-type pour le filtre gaussien.
+    :return: Image filtrée.
+    """
+    return filters.gaussian(image, sigma=sigma)
+
+def apply_clahe(image, clip_limit=0.01, nbins=256):
+    """
+    Applique le CLAHE (Contrast Limited Adaptive Histogram Equalization) à l'image.
+
+    :param image: Image d'entrée, numpy array 2D.
+    :param clip_limit: Seuil pour le contraste.
+    :param nbins: Nombre de bins pour l'histogramme.
+    :return: Image après application du CLAHE.
+    """
+    image = img_as_ubyte(image)
+    clahe = exposure.equalize_adapthist(image, clip_limit=clip_limit, nbins=nbins)
+    return clahe
 
 def median_filter(input_image, filter_size):
     """

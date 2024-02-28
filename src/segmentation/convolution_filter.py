@@ -18,7 +18,7 @@ def circular_averaging_filter(image, radius):
     kernel = kernel.astype(float) / kernel.sum()
     return convolve(image, kernel, mode='reflect')
 
-def fir_filter_image(image, fir_coeff):
+def fir_filter_image(image, fir_filter):
     """
     Applies a Finite Impulse Response (FIR) filter to an image.
 
@@ -29,5 +29,6 @@ def fir_filter_image(image, fir_coeff):
     Returns:
         numpy.ndarray: The image after applying the FIR filter.
     """
+    fir_coeff = np.array(fir_filter)
     fir_filtered_rows = convolve2d(image, fir_coeff.reshape(1, -1), mode='same')
     return convolve2d(fir_filtered_rows, fir_coeff.reshape(-1, 1), mode='same')
