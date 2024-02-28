@@ -4,6 +4,22 @@
 
 ```
 star01_OSC.jpg
-Accuracy = 0.7450324611449931 , Recall = 0.7534818941504178
+Accuracy = 0.8717827626918536 , Recall = 0.7499492179565306
 ```
-![image](https://github.com/PierreBio/EyeFundusVascularSegmentation/assets/45881846/93d4b4d8-904b-42b8-80a6-4dad74e1fcea)
+![image](https://github.com/PierreBio/EyeFundusVascularSegmentation/assets/45881846/f9a13298-ce71-4e69-bcf4-beaa9c93d680)
+
+Other results:
+
+```
+                 ACCU_pi  RECALL_pi     TP_pi      FP_pi      TN_pi     FN_pi
+star01_OSC.jpg  0.874079   0.749440  7.750702   7.936859  82.106018  2.206421
+star02_OSC.jpg  0.676434   0.876904  8.538055  14.865875  75.718307  0.877762 
+star03_OSC.jpg  0.867954   0.641779  8.475876   8.858109  79.698944  2.967072 
+star08_OSC.jpg  0.892276   0.661980  9.595871   8.726501  78.942108  2.735519
+star21_OSC.jpg  0.775817   0.630028  7.849503  11.005020  78.314209  2.831268
+star26_OSC.jpg  0.772516   0.694226  7.528305  11.564636  78.905106  2.001953
+star28_OSC.jpg  0.778971   0.649053  7.610321  10.199356  79.529572  2.660751
+star32_OSC.jpg  0.702177   0.702872  7.152939  15.354538  75.578690  1.913834
+star37_OSC.jpg  0.725228   0.755861  7.179642  10.886383  80.286789  1.647186
+star48_OSC.jpg  0.816408   0.738629  7.294846   7.932663  83.009338  1.763153
+```
