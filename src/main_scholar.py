@@ -1,47 +1,20 @@
 import numpy as np
-from skimage.morphology import erosion, dilation, binary_erosion, opening, closing, white_tophat, reconstruction, black_tophat, skeletonize, convex_hull_image, thin
+from skimage.morphology import erosion, dilation, binary_erosion, opening, closing, white_tophat, reconstruction, remove_small_objects, black_tophat, skeletonize, convex_hull_image, thin
 from skimage.morphology import square, diamond, octagon, rectangle, star, disk
 from skimage.filters.rank import entropy, enhance_contrast_percentile
+from skimage.filters import frangi
 from PIL import Image
 from scipy import ndimage as ndi
 from skimage.util import img_as_ubyte
 import math
 from skimage import data, filters
-from skimage.filters import frangi
-from skimage.morphology import closing, remove_small_objects, binary_dilation, disk, label
-from skimage.measure import label, regionprops
-from skimage.morphology import remove_small_objects
-from skimage.filters import threshold_local
 from matplotlib import pyplot as plt
 
-import numpy as np
-from skimage.filters import frangi, threshold_otsu
-from skimage.morphology import closing, remove_small_objects, binary_dilation, disk, label
-from skimage.measure import regionprops
-import matplotlib.pyplot as plt
 from src.preprocessing.contrast import enhance_contrast
-from src.preprocessing.median_filter import apply_clahe, apply_gaussian_filter, median_filter
-from src.segmentation.frangi_filter import frangi_vesselness_filter
+from src.preprocessing.median_filter import median_filter
 from src.segmentation.convolution_filter import circular_averaging_filter, fir_filter_image
 from src.segmentation.otsu_thresholding import apply_otsu_threshold
-from src.morphology.operations import bridge_unconnected_pixels, closing_operation, diagonal_fill
-
-import numpy as np
-from skimage.morphology import skeletonize, medial_axis
-from skimage.util import invert
-from scipy.ndimage import label, find_objects
-from skimage.measure import regionprops
-
-import numpy as np
-from skimage.morphology import skeletonize, binary_dilation, binary_erosion, disk, binary_closing
-from scipy.ndimage import label, generate_binary_structure
-from skimage.measure import regionprops
-
-def prune_small_branches(binary_image):
-    image_erodée = binary_erosion(binary_image, disk(1))
-    image_dilatée = binary_dilation(image_erodée, disk(3))
-    return image_dilatée
-
+from src.morphology.operations import prune_small_branches
 
 def my_segmentation(img, img_mask):
     image_clahe = enhance_contrast(img, blocks=14, threshold=8.0)
@@ -59,37 +32,14 @@ def my_segmentation(img, img_mask):
     }
 
     filtered_image = frangi(image_median_filtered, **frangi_params)
-
-    # Post-traitement pour améliorer la segmentation
     filtered_image_conv = circular_averaging_filter(filtered_image, 2)
     filtered_image_fir = fir_filter_image(filtered_image_conv, np.array([0.01, 3, 3, 3, 0.01]))
     image_otsu_thresholded = apply_otsu_threshold(filtered_image_fir)
 
-    # Suppression des petits objets
     binary_filtered = remove_small_objects(image_otsu_thresholded.astype(bool), min_size=250)
     binary_pruned_image = prune_small_branches(binary_filtered)
+
     img_out = (img_mask & binary_pruned_image).astype(np.uint8)
-
-    # Affichage des résultats
-    plt.figure(figsize=(18, 6))
-
-    plt.subplot(1, 3, 1)
-    plt.imshow(img, cmap='gray')
-    plt.title('Image Originale')
-    plt.axis('off')
-
-    plt.subplot(1, 3, 2)
-    plt.imshow(filtered_image, cmap='gray')
-    plt.title('Après Filtrage de Frangi')
-    plt.axis('off')
-
-    plt.subplot(1, 3, 3)
-    plt.imshow(img_out, cmap='gray')
-    plt.title('Segmentation Finale')
-    plt.axis('off')
-
-    plt.show()
-
     return img_out
 
 def evaluate(img_out, img_GT):

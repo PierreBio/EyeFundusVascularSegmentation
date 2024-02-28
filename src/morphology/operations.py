@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.ndimage import binary_dilation, binary_erosion
+from skimage.morphology import disk
 
 def bridge_unconnected_pixels(binary_image):
     """
@@ -67,3 +68,8 @@ def diagonal_fill(binary_image):
                 filled_image[i, j] = 1
 
     return filled_image
+
+def prune_small_branches(binary_image):
+    image_eroded = binary_erosion(binary_image, disk(1))
+    image_dilated = binary_dilation(image_eroded, disk(3))
+    return image_dilated

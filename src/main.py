@@ -1,43 +1,46 @@
 import numpy as np
 import cv2
 import pandas as pd
+from skimage.morphology import remove_small_objects
+from skimage.filters import frangi
 
 from src.preprocessing.contrast import enhance_contrast
 from src.preprocessing.median_filter import median_filter
 from src.preprocessing.other_median_filter import median_filter_disk
 from src.preprocessing.equalize import my_equalize
 from src.preprocessing.extract_high_frequency import high_freq
-from src.segmentation.frangi_filter import frangi_vesselness_filter
 from src.segmentation.convolution_filter import circular_averaging_filter, fir_filter_image
 from src.segmentation.otsu_thresholding import apply_otsu_threshold
 from src.morphology.erosion import erode
-from src.morphology.operations import bridge_unconnected_pixels, closing_operation, diagonal_fill
+from src.morphology.operations import prune_small_branches
 from src.performance.analysis import my_segmentation, total_evaluation
 
 
 def process_image_pierre(gray_image):
-    image_clahe = enhance_contrast(gray_image, blocks = 16, threshold = 8.0)
+    image_clahe = enhance_contrast(gray_image, blocks=14, threshold=8.0)
     image_median_filtered = median_filter(image_clahe, filter_size=3)
 
-    custom_options = {
-        'FrangiScaleRange': (0.1, 2),
-        'FrangiScaleRatio': 0.05,
-        'FrangiBetaOne': 0.3,
-        'FrangiBetaTwo': 15,
-        'verbose': False,
-        'BlackWhite': True
+    frangi_params = {
+        'scale_range': (2, 15),
+        'scale_step': 0.1,
+        'alpha': 1,
+        'beta': 1,
+        'gamma': 4,
+        'black_ridges': True,
+        'mode': 'wrap',
+        'cval': 5
     }
 
-    image_frangi = frangi_vesselness_filter(image_median_filtered, custom_options)
-    filtered_image_conv = circular_averaging_filter(image_frangi, 3)
-    filtered_image_fir = fir_filter_image(filtered_image_conv, np.array([0.01, 0.1, 0.1, 0.05, 0.01]))
+    filtered_image = frangi(image_median_filtered, **frangi_params)
+
+    filtered_image_conv = circular_averaging_filter(filtered_image, 2)
+    filtered_image_fir = fir_filter_image(filtered_image_conv, np.array([0.01, 0.2, 0.2, 0.2, 0.02]))
     image_otsu_thresholded = apply_otsu_threshold(filtered_image_fir)
 
-    binary_closed = closing_operation(image_otsu_thresholded, structure=np.ones((2,2)))
-    binary_diagonal_filled = diagonal_fill(binary_closed)
-    binary_bridged = bridge_unconnected_pixels(binary_diagonal_filled)
+    binary_filtered = remove_small_objects(image_otsu_thresholded.astype(bool), min_size=250)
+    binary_pruned_image = prune_small_branches(binary_filtered)
 
-    return binary_bridged
+    return binary_pruned_image
 
 def process_image_pascal(image):
     filtered_img = median_filter_disk(image, 3)
