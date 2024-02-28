@@ -21,7 +21,7 @@ The diagnosis generally relies on a quantitative analysis of the entire vascular
 2. Can you explain the evaluation function provided in the "main" Python script? [answer](docs/ANSWERS.md#answer-2)
 3. Why do we use two metrics (Precision and Recall)? [answer](docs/ANSWERS.md#answer-3)
 4. What role does skeletonization play in this evaluation function? [answer](docs/ANSWERS.md#answer-4)
-4. Our complete report is located [here](docs/Eye_Segmentation_Report.pdf).
+- Our complete report is located [here](docs/Eye_Segmentation_Report.pdf).
 
 ## How to setup?
 
