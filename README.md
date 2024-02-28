@@ -15,13 +15,16 @@ The diagnosis generally relies on a quantitative analysis of the entire vascular
 
 **Figure 1 – Two examples of SLO fundus images and expert annotations for segmentation of the vascular network.**
 
+## Report
+
+- Our complete report and explanations is located [here](docs/Eye_Segmentation_Report.pdf).
+
 ## Questions
 
 1. Can you realize an optimized algorithm to segment the vascular network without using machine learning, nor deep learning? [answer](docs/ANSWERS.md#answer-1)
 2. Can you explain the evaluation function provided in the "main" Python script? [answer](docs/ANSWERS.md#answer-2)
 3. Why do we use two metrics (Precision and Recall)? [answer](docs/ANSWERS.md#answer-3)
 4. What role does skeletonization play in this evaluation function? [answer](docs/ANSWERS.md#answer-4)
-- Our complete report is located [here](docs/Eye_Segmentation_Report.pdf).
 
 ## How to setup?
 
