@@ -1,5 +1,9 @@
 # Automatic Vascular Segmentation of the eye
+![logo_segmentation_small](https://github.com/PierreBio/EyeFundusVascularSegmentation/assets/45881846/b7d1d1cf-1a0a-47f5-87fb-55835557ee19)
+
 This project is carried out in the context of the Artificial Intelligence Masters of **TelecomParis**.
+
+<sub>Made with __Python v.11__</sub>
 
 ## Project
 
