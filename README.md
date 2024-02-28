@@ -3,7 +3,7 @@
 
 This project is carried out in the context of the Artificial Intelligence Masters of **TelecomParis**.
 
-<sub>Made with __Python v.11__</sub>
+<sub>Made with __Python v3.11__</sub>
 
 ## Project
 
