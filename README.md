@@ -29,6 +29,8 @@ The diagnosis generally relies on a quantitative analysis of the entire vascular
 
 Use our Google Collab ![link](https://colab.research.google.com/drive/1rXAabFUJKnAIvB4SSaxYVpEb0kuvUtnr?usp=sharing).
 
+<sub>Note: Results can be different using the Google Collab notebook due for packages versions and different environment.</sub>
+
 ## How to setup?
 
 - First, clone the repository:
