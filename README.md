@@ -4,7 +4,6 @@
 This project is carried out in the context of the Artificial Intelligence Masters of **TelecomParis**.
 
 <sub>Made with __Python v3.11__</sub>
-
 ## Project
 
 Scanning Laser Ophthalmoscopy (SLO) is a retinal imaging modality that allows for the creation of a high-resolution, wide-field fundus image, enabling the observation of the majority of the retinal surface in a single image at a resolution between 10 and 100 μm. Besides diseases of the retina itself, observation of the fundus can diagnose several general pathologies by examining the arterial and venous circulation in the retina. This is particularly the case for arterial hypertension and renal insufficiency.
@@ -25,6 +24,10 @@ The diagnosis generally relies on a quantitative analysis of the entire vascular
 2. Can you explain the evaluation function provided in the "main" Python script? [answer](docs/ANSWERS.md#answer-2)
 3. Why do we use two metrics (Precision and Recall)? [answer](docs/ANSWERS.md#answer-3)
 4. What role does skeletonization play in this evaluation function? [answer](docs/ANSWERS.md#answer-4)
+
+## Quick try?
+
+Use our Google Collab ![link](https://colab.research.google.com/drive/1rXAabFUJKnAIvB4SSaxYVpEb0kuvUtnr?usp=sharing).
 
 ## How to setup?
 
